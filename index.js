@@ -3,7 +3,7 @@
  * Installez :
  *   npm install discord.js dotenv
  * Variables d’environnement :
- *   DISCORD_TOKEN=<votre_token>
+ *   DISCORD_TOKEN dans le fichier .env ou défini sur votre hôte
  */
 
 require('dotenv').config(); // charge .env en tout premier
@@ -11,10 +11,10 @@ const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js')
 const fs = require('fs');
 const path = require('path');
 
-// ID du fichier de suivi des membres déjà DM
+// Fichier JSON pour garder la trace des membres déjà DMés
 const DMED_FILE = path.join(__dirname, 'dmed.json');
 
-// Message d’annonce à envoyer
+// Message à envoyer en DM
 const ANNOUNCE_MESSAGE = `# Salut à toi ! 👋
 > ➜ **On a ouvert un tout nouveau serveur encore plus stylé, avec plein de nouveautés et une communauté encore plus active !** 🎉
 > ➜ **Si tu fais partie des vrais, rejoins-nous là-bas et découvre tout ce qu’on a préparé pour toi** 🔥
@@ -30,7 +30,7 @@ const client = new Client({
   ]
 });
 
-// Charge la liste des IDs déjà DM
+// Charge la liste des IDs DMés (ou renvoie [] si pas de fichier)
 function loadDMed() {
   if (!fs.existsSync(DMED_FILE)) return [];
   try {
@@ -40,20 +40,17 @@ function loadDMed() {
   }
 }
 
-// Sauvegarde la liste
+// Sauvegarde la liste des IDs DMés
 function saveDMed(list) {
   fs.writeFileSync(DMED_FILE, JSON.stringify(list, null, 2), 'utf-8');
 }
 
-// Logique d’envoi de DM à tous les membres éligibles d’une guild
-async function dmAllMembers(guild, invokingUser) {
-  let dmed = loadDMed();
-
-  // fetch pour avoir tous les membres en cache
-  await guild.members.fetch();
+// Envoie un DM à tous les membres éligibles
+async function dmAllMembers(guild) {
+  const dmed = loadDMed();
+  await guild.members.fetch(); // récupère tous les membres en cache
 
   for (const member of guild.members.cache.values()) {
-    // filtres : pas de bot, pas déjà DM, pas de modérateurs/admins
     if (
       member.user.bot ||
       dmed.includes(member.id) ||
@@ -66,14 +63,12 @@ async function dmAllMembers(guild, invokingUser) {
     try {
       await member.send(ANNOUNCE_MESSAGE);
       dmed.push(member.id);
-      // save après chaque envoi pour persistance en cas de crash
       saveDMed(dmed);
     } catch (err) {
       console.error(`Impossible de DM ${member.user.tag}:`, err);
     }
   }
 
-  // Feedback dans le salon d’où la commande a été lancée
   return `✅ DMs envoyés à ${dmed.length} membres (hors bots et staff).`;
 }
 
@@ -83,36 +78,30 @@ client.once('ready', () => {
 
 client.on('messageCreate', async message => {
   if (message.author.bot || !message.guild) return;
+  if (message.content.trim() !== '+dmall') return;
 
-  const content = message.content.trim();
+  if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
+    return message.reply('🚫 Vous devez être administrateur pour utiliser cette commande.');
+  }
 
-  // Commande +dmall
-  if (content === '+dmall') {
-    // Vérification de permission : ici, seul un administrateur peut lancer
-    if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
-      return message.reply('🚫 Vous devez être administrateur pour utiliser cette commande.');
-    }
-
-    // Ack
-    const statusMsg = await message.channel.send('🚀 Envoi des DMs en cours…');
-    try {
-      const resultText = await dmAllMembers(message.guild, message.author);
-      await statusMsg.edit(resultText);
-    } catch (err) {
-      console.error(err);
-      await statusMsg.edit('❌ Une erreur est survenue lors de l’envoi des DMs.');
-    }
+  const statusMsg = await message.channel.send('🚀 Envoi des DMs en cours…');
+  try {
+    const result = await dmAllMembers(message.guild);
+    await statusMsg.edit(result);
+  } catch (err) {
+    console.error(err);
+    await statusMsg.edit('❌ Une erreur est survenue lors de l’envoi des DMs.');
   }
 });
 
-// === DEBUG VARIABLE D'ENVIRONNEMENT ===
+// === CHARGEMENT DU TOKEN ===
 const token = process.env.DISCORD_TOKEN;
 if (!token) {
   console.error('❌ AUCUN DISCORD_TOKEN trouvé dans process.env !');
+  process.exit(1);
 } else {
   console.log('✅ DISCORD_TOKEN chargé :', token.slice(0,4) + '…' + token.slice(-4));
 }
 
-// Connexion au bot via le token
-client.login(token)
-  .catch(err => console.error('❌ Échec de connexion :', err));
+// Connexion du bot
+client.login(token).catch(err => console.error('❌ Échec de connexion :', err));
