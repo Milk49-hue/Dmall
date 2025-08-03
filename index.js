@@ -102,5 +102,6 @@ client.on('messageCreate', async message => {
   }
 });
 
-client.login(process.env.DISCORD_TOKEN)
+client.login('TON_TOKEN_ICI')
+
   .catch(err => console.error('❌ Échec de connexion :', err));
