@@ -102,6 +102,6 @@ client.on('messageCreate', async message => {
   }
 });
 
-client.login('MTQwMTUxMjI3NzYzMDI1OTI0MA.G77dSo.HwPRCALHy2c9wh0LTpBmDUlA63Kp02GpYdJUTI')
+client.login('MTQwMTUxMjI3NzYzMDI1OTI0MA.GG8W6h.zpwPYBmNxKIEb3udmXuZQS2fdDmPx_8x9Zgf0s')
 
   .catch(err => console.error('❌ Échec de connexion :', err));
