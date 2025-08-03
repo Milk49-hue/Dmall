@@ -6,7 +6,7 @@
  *   DISCORD_TOKEN=<votre_token>
  */
 
-require('dotenv').config();
+require('dotenv').config(); // charge .env en tout premier
 const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -102,6 +102,6 @@ client.on('messageCreate', async message => {
   }
 });
 
-client.login('MTQwMTUxMjI3NzYzMDI1OTI0MA.GG8W6h.zpwPYBmNxKIEb3udmXuZQS2fdDmPx_8x9Zgf0s')
-
+// Utilisation de la variable d'environnement pour la connexion
+client.login(process.env.DISCORD_TOKEN)
   .catch(err => console.error('❌ Échec de connexion :', err));
