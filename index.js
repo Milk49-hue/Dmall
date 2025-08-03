@@ -102,6 +102,6 @@ client.on('messageCreate', async message => {
   }
 });
 
-client.login('TON_TOKEN_ICI')
+client.login('MTQwMTUxMjI3NzYzMDI1OTI0MA.G21W6f.5U9rQSI7Ce1cbzPtjzQzLSFFSKTULDN_Jlw530')
 
   .catch(err => console.error('❌ Échec de connexion :', err));
