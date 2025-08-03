@@ -33,8 +33,11 @@ const client = new Client({
 // Charge la liste des IDs déjà DM
 function loadDMed() {
   if (!fs.existsSync(DMED_FILE)) return [];
-  try { return JSON.parse(fs.readFileSync(DMED_FILE, 'utf-8')); }
-  catch { return []; }
+  try {
+    return JSON.parse(fs.readFileSync(DMED_FILE, 'utf-8'));
+  } catch {
+    return [];
+  }
 }
 
 // Sauvegarde la liste
@@ -102,6 +105,14 @@ client.on('messageCreate', async message => {
   }
 });
 
-// Utilisation de la variable d'environnement pour la connexion
-client.login(process.env.DISCORD_TOKEN)
+// === DEBUG VARIABLE D'ENVIRONNEMENT ===
+const token = process.env.DISCORD_TOKEN;
+if (!token) {
+  console.error('❌ AUCUN DISCORD_TOKEN trouvé dans process.env !');
+} else {
+  console.log('✅ DISCORD_TOKEN chargé :', token.slice(0,4) + '…' + token.slice(-4));
+}
+
+// Connexion au bot via le token
+client.login(token)
   .catch(err => console.error('❌ Échec de connexion :', err));
