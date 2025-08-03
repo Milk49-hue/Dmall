@@ -1,1 +1,16 @@
-
+{
+  "name": "discord-dmall-bot",
+  "version": "1.0.0",
+  "description": "Un bot Discord qui envoie un DM à tous les membres via la commande +dmall",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=16.9.0"
+  },
+  "dependencies": {
+    "discord.js": "^14.0.0",
+    "dotenv": "^16.0.0"
+  }
+}
