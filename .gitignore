@@ -1,5 +1,5 @@
 # Ne pas committer les variables d'environnement
 .env
 
-# Fichier de stockage des IDs DMés
+# Fichier de suivi des membres déjà DMés
 dmed.json
