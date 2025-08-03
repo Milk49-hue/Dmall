@@ -1,0 +1,5 @@
+# Ne pas committer les variables d'environnement
+.env
+
+# Fichier de stockage des IDs DMés
+dmed.json
