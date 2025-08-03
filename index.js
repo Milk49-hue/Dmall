@@ -1,12 +1,12 @@
 /**
  * Bot Discord — discord.js v14
- * Installez :
- *   npm install discord.js dotenv
- * Variables d’environnement :
- *   DISCORD_TOKEN dans le fichier .env ou défini sur votre hôte
+ * 
+ * 1. Charge le token depuis process.env.DISCORD_TOKEN
+ * 2. Ne crash plus si le token manque : juste un log d’erreur
+ * 3. Tente la connexion et affiche l’erreur (TokenInvalid ou autre)
  */
 
-require('dotenv').config(); // charge .env en tout premier
+require('dotenv').config(); // charge .env (local) ou Variables d’environnement (Render)
 const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -97,11 +97,12 @@ client.on('messageCreate', async message => {
 // === CHARGEMENT DU TOKEN ===
 const token = process.env.DISCORD_TOKEN;
 if (!token) {
-  console.error('❌ AUCUN DISCORD_TOKEN trouvé dans process.env !');
-  process.exit(1);
+  console.error('❌ AUCUN DISCORD_TOKEN trouvé dans process.env ! Vérifie ton .env ou tes Env Vars sur Render.');
 } else {
   console.log('✅ DISCORD_TOKEN chargé :', token.slice(0,4) + '…' + token.slice(-4));
 }
 
-// Connexion du bot
-client.login(token).catch(err => console.error('❌ Échec de connexion :', err));
+// Tente la connexion, affichera une erreur (TokenInvalid) si le token est invalide
+client.login(token).catch(err => {
+  console.error('❌ Échec de connexion :', err);
+});
